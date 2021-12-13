@@ -1,0 +1,44 @@
+<html>
+
+<head>
+
+    <script src="static/wasm_exec.js"></script>
+    <script>
+        // 初始化常量
+        let width = window.screen.width;
+        let height = window.screen.height;
+        let svgContent = ``
+        let svgHeader = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">`
+        let svgTail = `</svg>`
+        // 加载wasm
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("static/main.wasm"), go.importObject)
+            .then((result) => go.run(result.instance));
+        // 随机值函数
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+        // 点击处理函数
+        function handler(x, y) {
+            // 随机半径
+            let r = getRandomInt(10, height / 20);
+            svgContent = svgContent + draw(r, x, y);
+            console.log(svgHeader + svgContent + svgTail)
+            document.getElementById("workspace").innerHTML = svgHeader + svgContent + svgTail;
+        }
+        // 点击事件获取坐标
+        document.addEventListener("click", function (e) {
+            handler(e.clientX, e.clientY)
+        })
+
+    </script>
+</head>
+
+<body>
+    <div id="workspace">
+    </div>
+</body>
+
+</html>
